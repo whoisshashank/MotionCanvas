@@ -1,32 +1,114 @@
 # MotionCanvas
 
-Transform Human Movement into Long-Exposure Digital Art
-Overview
+MotionCanvas transforms human movement from video into long-exposure digital art. The project tracks body motion, extracts motion trajectories, and renders them as abstract trails that reveal flow, rhythm, and spatial dynamics.
 
-MotionCanvas is a computer vision and generative art project that converts human movement in videos into artistic long-exposure visualizations.
+## Overview
 
-Instead of displaying the original video, the system tracks a person's motion over time and generates an abstract artwork composed of motion trails. The final output resembles long-exposure photography, where movement is preserved as flowing streaks of light.
+MotionCanvas converts videos of people into artistic visualizations by tracking body joints and generating smooth motion trails. Instead of replaying the original frames, the project produces images that resemble long-exposure photography.
 
-Problem Statement
+## Problem Statement
 
-Traditional videos capture movement frame by frame, but they do not reveal the overall flow and rhythm of motion.
+Standard video playback captures individual frames, but it does not reveal the continuous flow of motion. MotionCanvas visualizes human movement as an artistic path, making motion itself the final output.
 
-MotionCanvas aims to visualize movement itself as art by transforming human actions into motion trails that represent the path taken through space and time.
+## Project Goals
 
-Project Goals
-Detect and isolate humans from video footage.
-Track body movement over time.
-Extract motion trajectories from key body joints.
-Generate long-exposure style artworks.
-Export the generated artwork as a high-resolution image.
-Version 2: Segmented Human Motion Trails
-Objective
+- Detect and isolate humans in video footage
+- Track body movement across time
+- Extract motion trajectories from key joints
+- Render long-exposure style artwork
+- Export high-resolution final images
 
-Track only the human subject and ignore background movement.
+## Architecture
 
-This ensures that camera shake, moving objects, and environmental noise do not affect the generated artwork.
+### 1. Video Input
 
-Pipeline
+The process begins with a source video containing a human subject.
+
+### 2. Human Segmentation
+
+Segment the person from the background to remove noise and unwanted motion.
+
+Possible models:
+- YOLOv8 Segmentation
+- SAM (Segment Anything)
+- MegaSAM
+
+Benefits:
+- removes background motion
+- isolates only the subject’s movement
+- produces cleaner visual trails
+
+### 3. Pose Estimation
+
+Detect body joints on the segmented subject.
+
+Common framework:
+- MediaPipe
+
+Tracked joints:
+- Head
+- Shoulders
+- Elbows
+- Wrists
+- Hips
+- Knees
+- Ankles
+
+Each joint receives a coordinate per frame, forming the basis for motion extraction.
+
+### 4. Joint Tracking
+
+Track each joint over time and convert its per-frame positions into continuous motion paths.
+
+Example path:
+```
+left_wrist_path = [
+  (320, 210),
+  (328, 215),
+  (341, 223),
+  ...
+]
+```
+
+### 5. Motion Path Generation
+
+Use joint trajectories to construct motion trails. Each path represents how a joint moved through space across the video.
+
+### 6. Artwork Rendering
+
+Render the motion paths onto a blank canvas using long-exposure style techniques.
+
+## Rendering Style: Long-Exposure Photography
+
+### Objective
+
+Create images that mimic a camera with an extended shutter, where movement appears as glowing trails.
+
+### Rendering Steps
+
+1. Create a blank canvas
+   - Example: `canvas = np.zeros((1080, 1920, 3))`
+   - Use a dark or black background
+
+2. Draw motion trails
+   - Connect joint positions frame by frame
+   - For each tracked joint, draw a line from the previous point to the current point
+
+3. Apply motion persistence
+   - Fade older trails gradually
+   - Example formula: `trail_opacity *= 0.98`
+
+4. Map color to speed
+   - Slow movement → darker tones
+   - Medium movement → purple or mid-range hues
+   - Fast movement → bright white or high-intensity colors
+
+5. Add glow effects
+   - Apply Gaussian blur or similar smoothing to enhance the long-exposure look
+
+## Example Pipeline
+
+```
 Input Video
       │
       ▼
@@ -43,161 +125,21 @@ Motion Path Generation
       │
       ▼
 Artwork Rendering
-Human Segmentation
+```
 
-The first step is to isolate the person from the background.
+## Notes
 
-Possible Models:
+- The design emphasizes robustness to camera shake and background motion.
+- Segmenting the subject first improves visual quality and reduces noise.
+- The result is a stylized artwork rather than a conventional video output.
 
-YOLOv8 Segmentation
-SAM (Segment Anything)
-MegaSAM
+## Future Enhancements
 
-Output:
+- Add multiple artistic rendering styles
+- Support adjustable color palettes
+- Export layered or animated visualizations
+- Introduce temporal blending techniques for richer trails
 
-Original Frame
-      ↓
-Person Mask
-      ↓
-Foreground Only
-
-Benefits:
-
-Removes background noise.
-Focuses only on meaningful motion.
-Produces cleaner motion trails.
-Pose Estimation
-
-Once the person is segmented, body joints are detected.
-
-Possible Framework:
-
-MediaPipe
-
-Tracked Joints:
-
-Head
-Shoulders
-Elbows
-Wrists
-Hips
-Knees
-Ankles
-
-Each joint receives coordinates for every frame.
-
-Example:
-
-frame_1:
-left_wrist = (320, 210)
-
-frame_2:
-left_wrist = (328, 215)
-
-frame_3:
-left_wrist = (341, 223)
-Motion Path Extraction
-
-Joint positions are stored across time.
-
-Example:
-
-left_wrist_path = [
- (320,210),
- (328,215),
- (341,223),
- ...
-]
-
-These paths become the foundation of the artwork.
-
-Version 3: Long Exposure Style Renderer
-Selected Style
-Style 1 — Long Exposure Photography
-
-Inspired by:
-
-Light painting
-Long shutter photography
-Motion blur art
-Dance motion photography
-Objective
-
-Create an image that looks like a camera shutter remained open while a person moved through the scene.
-
-Rendering Process
-Step 1
-
-Create a blank canvas.
-
-canvas = np.zeros((1080,1920,3))
-
-Black background.
-
-Step 2
-
-Draw Motion Trails
-
-For every tracked joint:
-
-draw_line(
- previous_point,
- current_point
-)
-
-Example:
-
-Frame 1
-     *
-      \
-Frame 2
-        *
-          \
-Frame 3
-            *
-
-Result:
-
-*---------*---------*
-Step 3
-
-Motion Persistence
-
-Older trails gradually fade.
-
-Formula:
-
-trail_opacity *= 0.98
-
-This creates smooth motion flow.
-
-Step 4
-
-Color Mapping
-
-Speed determines color intensity.
-
-Slow Movement
-     ↓
-Dark Blue
-
-Medium Movement
-     ↓
-Purple
-
-Fast Movement
-     ↓
-Bright White
-
-Alternative mode:
-
-Single white trails for authentic long-exposure photography.
-
-Step 5
-
-Glow Effect
-
-Apply Gaussian Blur.
 
 cv2.GaussianBlur()
 
