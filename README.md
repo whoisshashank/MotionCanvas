@@ -140,6 +140,29 @@ Artwork Rendering
 - Export layered or animated visualizations
 - Introduce temporal blending techniques for richer trails
 
+## Running the Pipeline
+
+1. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+2. Place a source video at `data/input/video.mp4` or update the path with `--input`.
+
+3. Run the main pipeline:
+
+```bash
+python src/main.py --input data/input/video.mp4 --output data/output/motion_canvas.png
+```
+
+4. Review the generated artwork in `data/output/motion_canvas.png`.
+
+## Notes
+
+- The pipeline uses MediaPipe pose estimation and OpenCV rendering.
+- If the input video is not found, update `--input` to the correct path.
+- Use `--skip` to skip frames for faster extraction on longer videos.
 
 cv2.GaussianBlur()
 
