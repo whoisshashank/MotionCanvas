@@ -20,7 +20,7 @@ class PoseTracker:
             static_image_mode=False,
             model_complexity=1,
             min_detection_confidence=min_detection_confidence,
-            min_tracking_confidence=min_tracking_confidence,
+            min_tracking_confidence=min_tracking_confidence, 
         )
 
     def extract(self, video_path: str) -> dict:
